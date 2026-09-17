@@ -1,0 +1,12 @@
+El alcance del sistema comprende exclusivamente la operatoria de ventas y sus procesos asociados: 
+
+-Gestión de stock por lote
+-Registro y consulta de clientes
+-Gestión de proveedores
+-Historial de precios y registro de métodos de pago. 
+
+Quedan fuera del alcance del proyecto: 
+
+-Módulos de recursos humanos (liquidación de sueldos, legajos)
+-Contabilidad general (libros contables, balances)
+-Logística de distribución externa (envíos, transporte entre sucursales). 
