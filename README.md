@@ -51,6 +51,7 @@ proyecto-bd1-equipo-09/
     ├── dml/       # Datos de prueba
     │   └── 02_datos_prueba.sql
     ├── consultas/ # Consultas SQL para casos de uso
+    │    └── 03_cosultas_avanzadas.sql
     └── tecnico/   # Procedimientos, funciones, triggers, índices, seguridad
 ```
 
