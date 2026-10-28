@@ -60,7 +60,7 @@ La prueba 2 es la que demuestra la **atomicidad**: la venta y el detalle ya hab√
 ### 5.1 Atomicidad: `sql/tecnico/transacciones/demo_transacciones.sql`
 
 ```sql
-USE FarmaciaDB;   -- reemplazar por el nombre real de la base
+USE Farmacia_Proyecto;   
 GO
 -- Se ejecutan dos pruebas sobre el mismo lote:
 --   PRUEBA 1: cantidad con stock suficiente   -> COMMIT  (venta registrada, stock descontado)
@@ -191,7 +191,7 @@ Esta demostraci√≥n necesita **dos ventanas de consulta** (dos sesiones) abiertas
 -- ---------------------------------------------------------------------
 -- PASO 1 - SESION A: abre una transaccion y modifica el stock SIN confirmar
 -- ---------------------------------------------------------------------
-USE FarmaciaDB;   -- << REEMPLAZAR por el nombre real de la base de datos
+USE Farmacia_Proyecto;   
 GO
 BEGIN TRANSACTION;
     UPDATE dbo.lote SET stock = stock - 1 WHERE id_lote = 1;
@@ -203,18 +203,16 @@ BEGIN TRANSACTION;
 -- ---------------------------------------------------------------------
 -- PASO 2 - SESION B: lectura normal (READ COMMITTED, nivel por defecto)
 -- ---------------------------------------------------------------------
-USE FarmaciaDB;
+USE Farmacia_Proyecto;
 GO
 SET LOCK_TIMEOUT 5000;          -- espera como maximo 5 segundos
 SELECT stock FROM dbo.lote WHERE id_lote = 1;
--- Resultado: la consulta queda esperando y falla con el error 1222
 -- (Lock request time out period exceeded): no puede leer un dato sin confirmar.
 
 -- ---------------------------------------------------------------------
 -- PASO 3 - SESION B: lectura sucia (NOLOCK), solo para mostrar la diferencia
 -- ---------------------------------------------------------------------
 SELECT stock FROM dbo.lote WITH (NOLOCK) WHERE id_lote = 1;
--- Resultado: devuelve el stock modificado por A aunque todavia no esta confirmado.
 
 -- ---------------------------------------------------------------------
 -- PASO 4 - SESION A: deshacer la transaccion
@@ -225,7 +223,6 @@ ROLLBACK TRANSACTION;
 -- PASO 5 - SESION B: repetir la lectura normal
 -- ---------------------------------------------------------------------
 SELECT stock FROM dbo.lote WHERE id_lote = 1;
--- Resultado: responde de inmediato con el valor original.
 GO
 ```
 
