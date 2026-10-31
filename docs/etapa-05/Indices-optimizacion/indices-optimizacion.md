@@ -204,19 +204,19 @@ GO
 ```
 **Índices creados en el sistema real** (consulta de verificación sobre `sys.indexes`):
 
-![Índices creados en el sistema](![ResultadoIndice](image-3.png))
+![Índices creados en el sistema](!![resultadoIndice](image-3.png))
 
 Las filas `perf_venta` y `perf_detalle` corresponden a los índices de las tablas de prueba de la demo, y `backup_metadata_store` es una tabla interna de SQL Server. Los 8 índices del sistema son los de `detalle_venta`, `lote`, `Persona`, `Producto` y `venta`.
 ### Resultados obtenidos
 
 * **Resultado de la consulta: Ventas de una semana agrupadas por vendedor**
-  [Ventas por vendedor](![Resultado1](image.png))
+  [Ventas por vendedor](![resultado1](image.png))
 
   * **Resultado de la consulta: Compras de un cliente específico**
-  [Compras de un cliente](![Resultado2](image-1.png))
+  [Compras de un cliente](!![resultado2](image-1.png))
 
   * **Resultado de la consulta: Renglones de una venta (`id_venta = 123456`)**
-  ![Renglones de una venta](![Resultado3](image-2.png))
+  ![Renglones de una venta](!![resultado3](image-2.png))
 
 ### Resultado esperado
 
