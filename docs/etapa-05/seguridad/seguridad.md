@@ -277,7 +277,64 @@ GO
 ### Resultados obtenidos
 
 > **Completar:** pegar acá la captura de pantalla (o el texto) del resultado de ejecutar `demo_seguridad.sql` en SQL Server Management Studio.
+![alt text](Resultado1.png)
+![alt text](Resultado2.png)
+![alt text](Resultado3.png)
+![alt text](Resultado4.png)
+![alt text](Resultado5.png)
+![alt text](Resultado6.png)
+![alt text](Resultado7.png)
+![alt text](Resultado8.png)
 
+
+Resultado 1 
+sesion_actual
+-------------
+usr_vendedor
+
+
+Resultado 2 
+id_lote | id_producto | producto              | categoria                | precio   | requiere_receta | fecha_vencimiento | stock
+--------|-------------|-----------------------|--------------------------|----------|-----------------|-------------------|------
+1       | 1           | Aspirina 500mg        | Medicamentos             | 1500.50  | 0               | 2026-12-31        | 100
+5       | 5           | Crema Dermaglós 200g  | Dermocosmética           | 12000.00 | 0               | 2027-01-10        | 40
+8       | 8           | Vitamina C Redoxon    | Suplementos y Vitaminas  | 9800.00  | 0               | 2027-05-18        | 60
+
+
+Resultado 3 
+nota                                        | id_venta | fecha_hora              | total   | dni_cliente | dni_empleado
+--------------------------------------------|----------|-------------------------|---------|-------------|-------------
+Venta vista por el dueno antes de deshacer  | 11       | 2026-11-02 12:39:51.187 | 1500.50 | 99999999    | 25333444
+
+
+Resultado 4
+sesion_actual
+-------------
+usr_gerente
+
+
+Resultado 5
+ventas_visibles
+---------------
+10
+
+
+Resultado 6
+sesion_actual
+-------------
+usr_auditor
+
+
+Resultado 7
+id_auditoria | id_producto | operacion | fecha_hora | usuario_bd | nombre_anterior | precio_anterior | receta_anterior | categoria_anterior | laboratorio_anterior | nombre_nuevo | precio_nuevo | receta_nueva | categoria_nueva | laboratorio_nuevo
+-------------|-------------|-----------|------------|------------|-----------------|-----------------|-----------------|--------------------|----------------------|--------------|--------------|--------------|-----------------|------------------
+(sin filas)
+
+
+Resultado 8
+sesion_final
+------------
+dbo
 ### Resultado esperado
 
 | Prueba | Resultado |
