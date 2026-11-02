@@ -4,7 +4,7 @@
 -- Sistema de Gestion de Ventas para Farmacia
 -- Motor: SQL Server Express
 -- =====================================================================
-USE FarmaciaDB;   -- << REEMPLAZAR por el nombre real de la base de datos
+USE Farmacia_Proyecto;
 GO
 
 -- Requiere haber ejecutado antes funciones, procedimientos y triggers

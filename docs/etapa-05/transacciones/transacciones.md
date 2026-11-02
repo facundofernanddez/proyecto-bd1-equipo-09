@@ -67,7 +67,8 @@ GO
 --   PRUEBA 2: cantidad mayor al stock         -> ROLLBACK (no queda ningun registro parcial)
 SET NOCOUNT ON;
 
-DECLARE @dni_empleado VARCHAR(15) = (SELECT TOP 1 dni FROM dbo.Empleado ORDER BY dni);
+DECLARE @dni_empleado INT         = (SELECT TOP 1 dni FROM dbo.Empleado ORDER BY dni);
+DECLARE @dni_cliente  INT         = 99999999;   -- Consumidor Final (RN.03)
 DECLARE @id_lote      INT         = (SELECT TOP 1 l.id_lote
                                      FROM dbo.lote l
                                      JOIN dbo.Producto p ON p.id_producto = l.id_producto
@@ -80,6 +81,12 @@ DECLARE @limpiar BIT = 1;       -- 1 = al final deshace la venta de la prueba 1 
 IF @id_lote IS NULL
 BEGIN
     PRINT 'No hay un lote vigente con stock >= 5 para la prueba.';
+    RETURN;
+END;
+
+IF NOT EXISTS (SELECT 1 FROM dbo.Cliente WHERE dni = @dni_cliente)
+BEGIN
+    PRINT 'Falta el cliente generico Consumidor Final (dni 99999999) en los datos de prueba.';
     RETURN;
 END;
 
@@ -101,7 +108,7 @@ BEGIN
 
             -- 1) Crear la venta
             INSERT INTO dbo.venta (fecha_hora, total, dni_cliente, dni_empleado)
-            VALUES (GETDATE(), 0, NULL, @dni_empleado);
+            VALUES (GETDATE(), 0, @dni_cliente, @dni_empleado);
             SET @id_venta = SCOPE_IDENTITY();
 
             -- 2) Crear el detalle (precio historico del producto)

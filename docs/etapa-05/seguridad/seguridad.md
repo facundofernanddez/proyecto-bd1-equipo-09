@@ -58,7 +58,7 @@ Técnicas aplicadas:
 -- Sistema de Gestion de Ventas para Farmacia
 -- Motor: SQL Server Express
 -- =====================================================================
-USE FarmaciaDB;   -- << REEMPLAZAR por el nombre real de la base de datos
+USE Farmacia_Proyecto;
 GO
 
 -- Requiere haber ejecutado antes funciones, procedimientos y triggers
@@ -154,13 +154,13 @@ En la farmacia, el **vendedor** atiende en el mostrador: necesita ver qué lotes
 ### `sql/tecnico/seguridad/demo_seguridad.sql`
 
 ```sql
-USE FarmaciaDB;   -- reemplazar por el nombre real de la base
+USE Farmacia_Proyecto;
 GO
 -- Se simula la sesion de cada usuario con EXECUTE AS USER ... REVERT.
 SET NOCOUNT ON;
 
 -- Datos necesarios, obtenidos con el usuario actual (dueno de la base)
-DECLARE @dni_empleado VARCHAR(15) = (SELECT TOP 1 dni FROM dbo.Empleado ORDER BY dni);
+DECLARE @dni_empleado INT         = (SELECT TOP 1 dni FROM dbo.Empleado ORDER BY dni);
 DECLARE @id_metodo    INT         = (SELECT TOP 1 id_metodo FROM dbo.Metodo_Pago ORDER BY id_metodo);
 DECLARE @id_lote      INT         = (SELECT TOP 1 l.id_lote
                                      FROM dbo.lote l

@@ -95,7 +95,8 @@ INSERT INTO Persona (dni, nombre, apellido, telefono, correo) VALUES
 (39444222, 'Laura', 'Benitez', '3794332211', 'laura.b@email.com'),
 (25333444, 'Sofia', 'Rodriguez', '3624998877', 'sofia.r@email.com'),
 (40123456, 'Ana', 'Martinez', '3794889900', 'ana.martinez@email.com'),
-(28999888, 'Carlos', 'Lopez', '3794556677', 'carlos.lopez@email.com');
+(28999888, 'Carlos', 'Lopez', '3794556677', 'carlos.lopez@email.com'),
+(99999999, 'Consumidor', 'Final', NULL, NULL);   -- Cliente generico RN.03
 
 INSERT INTO Cliente (dni, id_direccion) VALUES
 (30111222, 1),
@@ -107,7 +108,8 @@ INSERT INTO Cliente (dni, id_direccion) VALUES
 (39444222, 7),
 (25333444, 8),
 (40123456, 9),
-(28999888, 10);
+(28999888, 10),
+(99999999, NULL);   -- Consumidor Final (RN.03)
 
 INSERT INTO Empleado (dni, legajo, fecha_ingreso, id_cargo) VALUES
 (28999888, 'LEG-001', '2020-01-15', 1),
