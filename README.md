@@ -35,15 +35,37 @@ proyecto-bd1-equipo-09/
 │
 ├── .atl/        # Artefactos y metadatos locales
 ├── .gitignore
-├── AGENTS.md    # Instrucciones para agentes IA
 ├── README.md    # Este archivo
 ├── assets/      # Imágenes y recursos gráficos
+├── etapa_v/     # Etapa V evaluable: un tema por carpeta
+│   ├── procedimientos_funciones/
+│   │   ├── investigacion.md
+│   │   ├── scripts.sql
+│   │   └── evidencias/
+│   ├── transacciones/
+│   │   ├── investigacion.md
+│   │   ├── scripts.sql
+│   │   ├── scripts_aislamiento.sql
+│   │   └── evidencias/
+│   ├── triggers_auditoria/
+│   │   ├── investigacion.md
+│   │   ├── scripts.sql
+│   │   └── evidencias/
+│   └── extras/                # Temas complementarios (no evaluables)
+│       ├── seguridad/
+│       │   ├── investigacion.md
+│       │   ├── scripts.sql
+│       │   └── evidencias/
+│       └── indices_optimizacion/
+│           ├── investigacion.md
+│           ├── scripts.sql
+│           └── evidencias/
+│
 ├── docs/        # Documentación por etapa del proyecto
 │   ├── etapa-01/  # Requerimientos y reglas de negocio
 │   ├── etapa-02/  # DER, modelo relacional y normalización
 │   ├── etapa-03/  # Implementación física (DDL + DML)
-│   ├── etapa-04/  # Consultas y casos de uso
-│   └── etapa-05/  # Temas técnicos (SP, funciones, triggers, etc.)
+│   └── etapa-04/  # Consultas y casos de uso
 │
 └── sql/
     ├── ddl/       # Definición de estructura
@@ -51,8 +73,10 @@ proyecto-bd1-equipo-09/
     ├── dml/       # Datos de prueba
     │   └── 02_datos_prueba.sql
     ├── consultas/ # Consultas SQL para casos de uso
-    │    └── 03_cosultas_avanzadas.sql
-    └── tecnico/   # Procedimientos, funciones, triggers, índices, seguridad
+    │    ├── comprobante_ventas.sql
+    │    ├── informe_ventas.sql
+    │    └── consulta_avanzada.sql
+    └── tecnico/   # Scripts de origen de la Etapa V (ver etapa_v/)
 ```
 
 ## Tecnologías
@@ -115,15 +139,10 @@ También se pueden ejecutar directamente desde SSMS o Azure Data Studio en ese o
 | **Etapa II** | DER, modelo relacional y normalización (1FN→3FN) | `docs/etapa-02/` |
 | **Etapa III** | Implementación física (DDL + DML) | `docs/etapa-03/` |
 | **Etapa IV** | Consultas y casos de uso (JOIN, GROUP BY, SUM, COUNT, subconsultas/HAVING) | `docs/etapa-04/` |
-| **Etapa V** | Temas técnicos (procedimientos, funciones, transacciones, triggers, seguridad, índices) | `docs/etapa-05/` |
-
-## Contribuciones individuales
-
-Cada integrante deberá registrar su aporte por etapa en un archivo `CONTRIBUCION_etapaXX.md` siguiendo el formato indicado en la consigna. Incluir evidencias (archivos modificados, commits, issues, pull requests) y reflexión.
+| **Etapa V** | Temas técnicos (procedimientos, funciones, transacciones, triggers, seguridad, índices) | `etapa_v/` (3 temas evaluables + extras) |
 
 ## Referencias
 
-- [AGENTS.md](./AGENTS.md) — Reglas de trabajo para agentes IA en este repositorio
 - ERDPlus — Modelado conceptual/lógico
 - Microsoft SQL Server / T-SQL
 

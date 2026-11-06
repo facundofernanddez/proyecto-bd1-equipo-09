@@ -7,7 +7,7 @@ Obtener el comprobante completo de una venta, consolidando el encabezado (númer
 ## Estrategia SQL
 
 - Se parte de `venta` (encabezado) y se une con `detalle_venta` (renglones). Para obtener el nombre del producto se recorre `detalle_venta` → `lote` → `producto`.
-- El vendedor se obtiene recorriendo `venta` → `empleado` → `persona`, y el cliente con `LEFT JOIN` a `cliente` y `persona`, de modo que una venta sin cliente registrado (consumidor final) también se muestre; en ese caso un `CASE` informa "Consumidor final" (se usa `CASE` en lugar de concatenar directamente porque el manejo de valores nulos en `CONCAT` varía según el motor).
+- El vendedor se obtiene recorriendo `venta` → `empleado` → `persona`. El cliente se obtiene con `LEFT JOIN` a `cliente` y `persona`. Como `venta.dni_cliente` es `NOT NULL` (RN.03), toda venta tiene un cliente; cuando el DNI es `99999999`, el `CASE` informa "Consumidor final".
 - El subtotal de cada renglón se calcula como `cantidad * precio_unitario`, usando el precio guardado en el detalle (el precio histórico de la venta, no el actual del catálogo), tal como indica la regla de negocio RN.04.
 - El total acumulado se calcula con la función de ventana `SUM() OVER (PARTITION BY id_venta ORDER BY id_detalle)`, que va sumando renglón a renglón; la columna `total_factura` repite el total final de la venta en cada fila.
 
@@ -17,7 +17,7 @@ Obtener el comprobante completo de una venta, consolidando el encabezado (númer
 SELECT
     v.id_venta                                   AS nro_comprobante,
     v.fecha_hora                                 AS fecha,
-    CASE WHEN pc.dni IS NULL THEN 'Consumidor final'
+    CASE WHEN v.dni_cliente = 99999999 THEN 'Consumidor final'
          ELSE CONCAT(pc.apellido, ', ', pc.nombre) END AS cliente,
     CONCAT(pv.apellido, ', ', pv.nombre)         AS vendedor,
     pr.nombre                                    AS producto,
@@ -44,10 +44,9 @@ ORDER BY dv.id_detalle;
 
 | nro_comprobante | fecha | cliente | vendedor | producto | cantidad | precio_unitario | subtotal_renglon | total_acumulado | total_factura |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | 2026-09-01 10:15:00 | Gimenez, Martina | Sosa, Lucia | Paracetamol 500mg x20 | 2 | 1200.00 | 2400.00 | 2400.00 | 3900.00 |
-| 1 | 2026-09-01 10:15:00 | Gimenez, Martina | Sosa, Lucia | Loratadina 10mg x10 | 1 | 1500.00 | 1500.00 | 3900.00 | 3900.00 |
+| 1 | 2026-09-01 09:30:00 | Perez, Juan | Lopez, Carlos | Aspirina 500mg | 1 | 1500.50 | 1500.50 | 1500.50 | 1500.50 |
 
-El último valor de `total_acumulado` coincide con `total_factura`. Si se cambia el filtro a `v.id_venta = 3`, la columna `cliente` muestra "Consumidor final".
+El último valor de `total_acumulado` coincide con `total_factura`. En los datos de prueba actuales no hay ventas registradas al Consumidor Final. Para ver ese caso, registrá una venta con `dni_cliente = 99999999` usando `sp_RegistrarVentaCompleta` o actualizá temporalmente una venta; la columna `cliente` mostrará "Consumidor final".
 
 ---
 

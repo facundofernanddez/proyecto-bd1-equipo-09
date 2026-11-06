@@ -5,7 +5,7 @@ Bases de Datos 1 – 2026 – Grupo n° 9
 
 ## Consideraciones generales
 
-- Motor de base de datos: **SQL Server 2012 o superior**. Algunas de las consultas utilizan funciones de ventana.
+- Motor de base de datos: **SQL Server 2016 SP1 o superior**. Las consultas de esta etapa usan funciones de ventana (disponibles desde SQL Server 2012), pero los scripts de la Etapa V usan `CREATE OR ALTER`, que requiere SQL Server 2016 SP1 o superior.
 - Los nombres de tablas y columnas corresponden al modelo relacional final del proyecto.
 - Las fechas se escriben en formato `AAAAMMDD`, que el motor interpreta de la misma forma sin importar la configuración regional del servidor.
 - Los resultados que se muestran fueron obtenidos con datos de prueba. Con otros datos los valores cambian, pero la estructura del resultado es la misma. Los parámetros (número de venta, rango de fechas) pueden modificarse directamente en cada consulta.

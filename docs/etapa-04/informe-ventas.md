@@ -22,7 +22,7 @@ Los datos de prueba incluyen ventas del 1 al 10 de septiembre de 2026. Al usar e
 
 | dni_vendedor | vendedor         | cantidad_ventas | total_ventas |
 | -----------: | ---------------- | --------------: | -----------: |
-|     40123456 | Rios, Ana        |               3 |     25000.00 |
+|     40123456 | Martinez, Ana    |               3 |     25000.00 |
 |     28999888 | Lopez, Carlos    |               4 |     22200.50 |
 |     38777666 | Fernandez, Lucas |               3 |      8850.00 |
 

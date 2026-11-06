@@ -1,51 +1,33 @@
-# Procedimientos y Funciones Almacenadas
-
-## 1. Definición y objetivo
-
-Un **procedimiento almacenado** (*stored procedure*) es un programa SQL que se guarda dentro de la base de datos con un nombre y se ejecuta con una sola instrucción (`EXEC`). Puede recibir parámetros, ejecutar muchas operaciones (consultas, inserciones, actualizaciones) y devolver resultados.
-
-Una **función almacenada** (*function*) es una rutina que recibe parámetros y **devuelve un valor** (función escalar) o **una tabla** (función de tabla). A diferencia del procedimiento, se puede usar dentro de un `SELECT`, como si fuera una columna más.
-
-| | Procedimiento | Función |
-|---|---|---|
-| Se invoca con | `EXEC` | dentro de una consulta (`SELECT dbo.fn(...)`) |
-| Devuelve | conjuntos de resultados y parámetros de salida | un valor o una tabla |
-| Puede modificar datos | Sí | No (solo consulta) |
-| Uso típico | procesos completos (registrar una venta) | cálculos reutilizables (descuentos, stock) |
-
-**Objetivo:** concentrar la lógica de negocio dentro de la base de datos para que todas las aplicaciones y usuarios la usen de la misma forma.
-
-## 2. Ventajas y aplicaciones
-
-- **Reutilización:** la lógica se escribe una vez y se invoca desde cualquier lugar.
-- **Menos código repetido y más mantenibilidad:** si cambia una regla (por ejemplo, el porcentaje de descuento), se modifica en un solo objeto.
-- **Centralización de reglas de negocio:** las reglas RN.01, RN.02, RN.04 y RN.06 se validan siempre, sin depender de que cada programa las recuerde.
-- **Seguridad:** se puede permitir que un usuario ejecute el procedimiento sin darle acceso directo a las tablas (ver `seguridad.md`).
-- **Rendimiento:** una sola llamada reemplaza varias consultas enviadas por separado, y el motor reutiliza el plan de ejecución.
-
-## 3. Implementación en SQL Server Express
-
-Objetos creados:
-
-| Objeto | Tipo | Qué hace |
-|---|---|---|
-| `dbo.fn_CalcularDescuentoCliente` | Función escalar | Devuelve el % de descuento según lo acumulado en compras del cliente |
-| `dbo.fn_StockDisponible` | Función escalar | Suma el stock de los lotes **no vencidos** de un producto |
-| `dbo.tipo_detalle_venta` | Tipo tabla | Permite enviar todos los renglones de una venta en un solo parámetro |
-| `dbo.sp_RegistrarVentaCompleta` | Procedimiento | Registra encabezado, detalle, stock, total y pago en una única operación |
-| `dbo.sp_ReporteVentasPorVendedor` | Procedimiento | Reporte de ventas por vendedor en un rango de fechas (consulta 2.a de la Etapa IV) |
-
-**Orden de ejecución:** primero las funciones (`sql/tecnico/funciones/`) y luego los procedimientos (`sql/tecnico/procedimientos/`), porque el procedimiento de venta usa la función de descuento.
-
-### Función: descuento para clientes frecuentes
-
-```sql
+-- =====================================================================
+-- ETAPA V - PROCEDIMIENTOS Y FUNCIONES
+-- Proyecto Integrador Bases de Datos 1 - Grupo 9
+-- Sistema de Gestion de Ventas para Farmacia
+-- Motor: SQL Server Express
+--
+-- REQUISITOS:
+--   1. Base Farmacia_Proyecto creada (sql/ddl/01_creacion_tablas.sql).
+--   2. Datos de prueba cargados (sql/dml/02_datos_prueba.sql).
+--   3. SQL Server 2016 SP1 o superior (por CREATE OR ALTER).
+--
+-- ORDEN DE EJECUCION:
+--   Seccion 1: funciones
+--   Seccion 2: procedimientos
+--   Seccion 3: demostracion
+-- =====================================================================
 USE Farmacia_Proyecto;
 GO
--- Devuelve el porcentaje de descuento segun el monto acumulado de compras del cliente.
+
+-- =====================================================================
+-- SECCION 1: FUNCIONES ALMACENADAS
+-- =====================================================================
+
+-- ---------------------------------------------------------------------
+-- 1.1 fn_CalcularDescuentoCliente
+-- Devuelve el porcentaje de descuento segun el monto acumulado de compras.
 --   Mas de $500.000 acumulados -> 10 %
 --   Mas de $200.000 acumulados ->  5 %
 --   Caso contrario             ->  0 %
+-- ---------------------------------------------------------------------
 CREATE OR ALTER FUNCTION dbo.fn_CalcularDescuentoCliente (@dni_cliente INT)
 RETURNS DECIMAL(5,2)
 AS
@@ -63,15 +45,11 @@ BEGIN
            END;
 END;
 GO
-```
 
-### Función: stock disponible
-
-```sql
-USE Farmacia_Proyecto;
-GO
--- El stock se guarda por lote (RN.02). Esta funcion suma el stock de los lotes
--- NO vencidos de un producto, es decir, lo que realmente se puede vender hoy.
+-- ---------------------------------------------------------------------
+-- 1.2 fn_StockDisponible
+-- Suma el stock de los lotes NO vencidos de un producto (RN.02).
+-- ---------------------------------------------------------------------
 CREATE OR ALTER FUNCTION dbo.fn_StockDisponible (@id_producto INT)
 RETURNS INT
 AS
@@ -82,16 +60,17 @@ BEGIN
                      AND fecha_vencimiento >= CAST(GETDATE() AS DATE)), 0);
 END;
 GO
-```
 
-### Procedimiento: registrar una venta completa
+-- =====================================================================
+-- SECCION 2: PROCEDIMIENTOS ALMACENADOS
+-- =====================================================================
 
-```sql
-USE Farmacia_Proyecto;
-GO
--- Requiere que exista dbo.fn_CalcularDescuentoCliente (ejecutar primero la carpeta funciones).
+-- ---------------------------------------------------------------------
+-- 2.1 sp_RegistrarVentaCompleta
+-- Requiere dbo.fn_CalcularDescuentoCliente (seccion 1).
+-- ---------------------------------------------------------------------
 
--- Tipo de tabla para enviar los renglones de la venta en una sola llamada (parametro tipo tabla).
+-- Tipo de tabla para enviar los renglones de la venta en una sola llamada.
 IF TYPE_ID('dbo.tipo_detalle_venta') IS NULL
     CREATE TYPE dbo.tipo_detalle_venta AS TABLE
     (
@@ -222,14 +201,11 @@ BEGIN
     END CATCH
 END;
 GO
-```
 
-### Procedimiento: reporte por vendedor
-
-```sql
-USE Farmacia_Proyecto;
-GO
--- Es la consulta 2.a de la Etapa IV convertida en procedimiento con parametros.
+-- ---------------------------------------------------------------------
+-- 2.2 sp_ReporteVentasPorVendedor
+-- Es la consulta 2.a de la Etapa IV convertida en procedimiento.
+-- ---------------------------------------------------------------------
 CREATE OR ALTER PROCEDURE dbo.sp_ReporteVentasPorVendedor
     @desde DATE,
     @hasta DATE
@@ -253,36 +229,14 @@ BEGIN
     ORDER BY total_vendido DESC;
 END;
 GO
-```
 
-## 4. Caso concreto aplicado al sistema de ventas
+-- =====================================================================
+-- SECCION 3: DEMOSTRACION
+-- =====================================================================
 
-**Problema de negocio:** registrar una venta completa sin que el usuario tenga que ejecutar muchas consultas, cumpliendo las reglas de negocio y premiando a los clientes frecuentes.
-
-`sp_RegistrarVentaCompleta` recibe el vendedor, el método de pago, el cliente (opcional: si es `NULL` se resuelve al cliente genérico Consumidor Final, dni 99999999, RN.03) y los renglones de la venta, y realiza **en una única transacción**:
-
-1. Valida los datos y las reglas: lote vencido (RN.02) y producto bajo receta sin receta (RN.06).
-2. Calcula el descuento del cliente con `fn_CalcularDescuentoCliente`.
-3. Inserta el encabezado en `venta`.
-4. Inserta los renglones en `detalle_venta` guardando el **precio histórico** (RN.04).
-5. Descuenta el stock del lote (RN.01) con un `UPDATE` condicionado: solo descuenta si alcanza.
-6. Calcula el total y registra el `pago` (RN.05).
-7. Confirma con `COMMIT`; ante cualquier error hace `ROLLBACK`.
-
-**Decisiones de diseño:**
-
-- El modelo no tiene una columna de descuento, por lo que el descuento se refleja en el `precio_unitario` efectivamente cobrado. Así `venta.total` sigue siendo igual a la suma de los renglones y la consulta de control de la Etapa IV sigue sin mostrar diferencias.
-- El stock se controla por **lote** (donde está guardado en el modelo), no por producto.
-- Los renglones se envían con un **parámetro de tipo tabla**, lo que permite vender varios productos en una sola llamada.
-- Los umbrales de la función de descuento ($200.000 y $500.000) son los de la guía de la cátedra; se pueden ajustar editando la función.
-
-## 5. Script de demostración y resultados
-
-### Funciones (`sql/tecnico/funciones/demo_funciones.sql`)
-
-```sql
-USE Farmacia_Proyecto;
-GO
+-- ---------------------------------------------------------------------
+-- 3.1 Demostracion de las funciones
+-- ---------------------------------------------------------------------
 SET NOCOUNT ON;
 
 -- 1) Descuento actual de cada cliente (segun lo que ya compro)
@@ -323,45 +277,23 @@ SELECT p.id_producto, p.nombre, dbo.fn_StockDisponible(p.id_producto) AS stock_d
 FROM dbo.Producto p
 ORDER BY p.id_producto;
 GO
-```
 
-### Resultados obtenidos
-
- `demo_funciones.sql`: 
-
- 1) Descuento actual de cada cliente (segun lo que ya compro)
- ![alt text](resultados1.png)
-
- 2) Simulación: se agregan compras grandes a un cliente y se observa el descuento.
- ![alt text](resultados2.png)
-
- 3) Stock vendible por producto (lotes no vencidos):
- ![alt text](resultados3.png)
-
-### Resultado esperado
-
-- El primer `SELECT` lista a cada cliente con su acumulado de compras y su descuento (con pocos datos de prueba, `0.00` para todos).
-- En la simulación el descuento pasa de `0.00` a `5.00` (acumulado > $200.000) y luego a `10.00` (acumulado > $500.000). Tras el `ROLLBACK` vuelve al valor original.
-- El último `SELECT` muestra el stock vendible de cada producto (lotes no vencidos).
-
-### Procedimientos (`sql/tecnico/procedimientos/demo_procedimientos.sql`)
-
-```sql
-USE Farmacia_Proyecto;
-GO
+-- ---------------------------------------------------------------------
+-- 3.2 Demostracion de los procedimientos
+-- ---------------------------------------------------------------------
 SET NOCOUNT ON;
 
 -- Parametros tomados de datos reales de la base
 DECLARE @dni_empleado INT = (SELECT TOP 1 dni FROM dbo.Empleado ORDER BY dni);
 DECLARE @dni_cliente  INT = (SELECT TOP 1 dni FROM dbo.Cliente  ORDER BY dni);
-DECLARE @id_metodo    INT         = (SELECT TOP 1 id_metodo FROM dbo.Metodo_Pago ORDER BY id_metodo);
-DECLARE @id_lote      INT         = (SELECT TOP 1 l.id_lote
-                                     FROM dbo.lote l
-                                     JOIN dbo.Producto p ON p.id_producto = l.id_producto
-                                     WHERE l.stock >= 3
-                                       AND l.fecha_vencimiento >= CAST(GETDATE() AS DATE)
-                                       AND p.requiere_receta = 0
-                                     ORDER BY l.id_lote);
+DECLARE @id_metodo    INT = (SELECT TOP 1 id_metodo FROM dbo.Metodo_Pago ORDER BY id_metodo);
+DECLARE @id_lote      INT = (SELECT TOP 1 l.id_lote
+                             FROM dbo.lote l
+                             JOIN dbo.Producto p ON p.id_producto = l.id_producto
+                             WHERE l.stock >= 3
+                               AND l.fecha_vencimiento >= CAST(GETDATE() AS DATE)
+                               AND p.requiere_receta = 0
+                             ORDER BY l.id_lote);
 DECLARE @id_venta INT;
 DECLARE @limpiar  BIT = 1;      -- 1 = deshace la venta de prueba al final; 0 = la deja registrada
 
@@ -405,20 +337,3 @@ END;
 -- Procedimiento de reporte
 EXEC dbo.sp_ReporteVentasPorVendedor @desde = '20260101', @hasta = '20261231';
 GO
-```
-
-### Resultados obtenidos
-
-`demo_procedimientos.sql` 
-
-1)![alt text](resultados4.png)
-
-### Resultado esperado
-
-- El stock del lote baja en 2 unidades (`ANTES` vs. `DESPUES`).
-- Queda **una** fila en `venta`, **una** en `detalle_venta` (cantidad 2, con el precio del producto) y **una** en `pago` cuyo monto coincide con `venta.total`.
-- `sp_ReporteVentasPorVendedor` devuelve el total vendido por cada vendedor.
-- Con `@limpiar = 1` la venta de prueba se elimina y el stock se restituye al final.
-
----
-

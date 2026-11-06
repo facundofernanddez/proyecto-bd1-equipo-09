@@ -1,8 +1,11 @@
 
+USE Farmacia_Proyecto;
+GO
+
 SELECT
     v.id_venta                                   AS nro_comprobante,
     v.fecha_hora                                 AS fecha,
-    CASE WHEN pc.dni IS NULL THEN 'Consumidor final'
+    CASE WHEN v.dni_cliente = 99999999 THEN 'Consumidor final'
          ELSE CONCAT(pc.apellido, ', ', pc.nombre) END AS cliente,
     CONCAT(pv.apellido, ', ', pv.nombre)         AS vendedor,
     pr.nombre                                    AS producto,
