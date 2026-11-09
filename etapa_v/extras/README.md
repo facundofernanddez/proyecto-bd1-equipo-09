@@ -16,4 +16,4 @@ Temas complementarios que no forman parte de los tres temas de la consigna, pero
 ## Notas de ejecución
 
 - **Seguridad:** si el usuario no es `sysadmin`, el script omite la creación de logins y crea los usuarios `WITHOUT LOGIN`; la demo funciona igual con `EXECUTE AS`. Ejecutar como `dbo` o con permiso `IMPERSONATE`.
-- **Índices:** la sección 2 genera 300.000 ventas y 900.000 renglones, puede tardar varios minutos y ocupa espacio en disco. Al final elimina las tablas de prueba.
+- **Índices:** la sección 2 genera 500 ventas y 1.500 renglones, se ejecuta en segundos y al final elimina las tablas de prueba.

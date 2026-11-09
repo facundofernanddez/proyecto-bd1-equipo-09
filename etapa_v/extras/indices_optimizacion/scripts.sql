@@ -6,17 +6,17 @@
 --
 -- Contenido:
 --   Seccion 1: crea 8 indices no agrupados sobre las tablas reales.
---   Seccion 2: demo de rendimiento con tablas de prueba (300.000 ventas
---              y 900.000 renglones) para comparar consultas sin y con indice.
+--   Seccion 2: demo de rendimiento con tablas de prueba (500 ventas
+--              y 1.500 renglones) para comparar consultas sin y con indice.
 --
 -- Requisitos:
 --   Haber ejecutado el DDL y el DML del proyecto.
 --
 -- ADVERTENCIA:
---   La seccion 2 genera 1.200.000 filas y puede tardar varios minutos en
---   SQL Server Express. Necesita espacio en disco. Al final elimina las
---   tablas de prueba. Si la ejecucion se interrumpe, volver a correr el
---   script: el inicio de la seccion 2 hace DROP de las tablas si existen.
+--   La seccion 2 genera 2.000 filas y se ejecuta en segundos. Al final
+--   elimina las tablas de prueba. Si la ejecucion se interrumpe, volver a
+--   correr el script: el inicio de la seccion 2 hace DROP de las tablas si
+--   existen.
 -- =====================================================================
 USE Farmacia_Proyecto;
 GO
@@ -84,7 +84,7 @@ GO
 -- (Ctrl+M) para ver Table Scan vs Index Seek.
 -- =====================================================================
 
--- ---------- 2.1) Tablas y datos de prueba (300.000 ventas, 900.000 renglones) ----------
+-- ---------- 2.1) Tablas y datos de prueba (500 ventas, 1.500 renglones) ----------
 IF OBJECT_ID('dbo.perf_detalle') IS NOT NULL DROP TABLE dbo.perf_detalle;
 IF OBJECT_ID('dbo.perf_venta')   IS NOT NULL DROP TABLE dbo.perf_venta;
 
@@ -107,12 +107,12 @@ CREATE TABLE dbo.perf_detalle
 GO
 
 ;WITH n AS (
-    SELECT TOP (300000) CAST(ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS INT) AS n
+    SELECT TOP (500) CAST(ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS INT) AS n
     FROM sys.all_objects a CROSS JOIN sys.all_objects b
 )
 INSERT INTO dbo.perf_venta (id_venta, fecha_hora, total, dni_cliente, dni_empleado)
 SELECT n,
-       DATEADD(MINUTE, -(n % 525600), GETDATE()),   -- repartidas en el ultimo anio
+       DATEADD(MINUTE, -(n * 1000) % 525600, GETDATE()),   -- repartidas en el ultimo anio
        (n % 9000) + 100,
        30000000 + (n % 20000),                      -- DNI de cliente (INT)
        31000000 + (n % 8)                           -- DNI de empleado (INT)
@@ -140,12 +140,12 @@ OPTION (RECOMPILE);
 PRINT '--- SIN INDICE: compras de un cliente ---';
 SELECT id_venta, fecha_hora, total
 FROM dbo.perf_venta
-WHERE dni_cliente = 30001234;
+WHERE dni_cliente = 30000123;
 
 PRINT '--- SIN INDICE: renglones de una venta ---';
 SELECT id_detalle, id_lote, cantidad, precio_unitario
 FROM dbo.perf_detalle
-WHERE id_venta = 123456;
+WHERE id_venta = 1;
 GO
 
 -- ---------- 2.3) Creacion de los indices de prueba ----------
@@ -170,12 +170,12 @@ OPTION (RECOMPILE);
 PRINT '--- CON INDICE: compras de un cliente ---';
 SELECT id_venta, fecha_hora, total
 FROM dbo.perf_venta
-WHERE dni_cliente = 30001234;
+WHERE dni_cliente = 30000123;
 
 PRINT '--- CON INDICE: renglones de una venta ---';
 SELECT id_detalle, id_lote, cantidad, precio_unitario
 FROM dbo.perf_detalle
-WHERE id_venta = 123456;
+WHERE id_venta = 1;
 GO
 
 SET STATISTICS IO OFF;

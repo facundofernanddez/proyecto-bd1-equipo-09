@@ -45,12 +45,24 @@ Las tablas que más crecen en una farmacia son `venta` y `detalle_venta`: se agr
 1. Tener creada y cargada la base `Farmacia_Proyecto` con el DDL y el DML del proyecto.
 2. Abrir `scripts.sql` en SQL Server Management Studio.
 3. Ejecutar la **sección 1**: crea los 8 índices sobre las tablas reales y muestra la verificación desde `sys.indexes`.
-4. Ejecutar la **sección 2**: crea `perf_venta` (300.000 ventas) y `perf_detalle` (900.000 renglones), mide las consultas sin índices, crea tres índices de prueba, repite las consultas y elimina las tablas de prueba.
+4. Ejecutar la **sección 2**: crea `perf_venta` (500 ventas) y `perf_detalle` (1.500 renglones), mide las consultas sin índices, crea tres índices de prueba, repite las consultas y elimina las tablas de prueba.
 5. Activar **Incluir plan de ejecución real** (`Ctrl+M`) antes de ejecutar la sección 2 para comparar `Table Scan` con `Index Seek`.
 
-> **Advertencia:** la sección 2 genera 1.200.000 filas y puede tardar varios minutos en SQL Server Express, además de ocupar espacio en disco. Al final elimina las tablas de prueba. Si la ejecución se interrumpe, volver a correr el script: el inicio de la sección 2 hace `DROP` de las tablas si existen.
+> **Advertencia:** la sección 2 genera 2.000 filas y se ejecuta en segundos. Al final elimina las tablas de prueba. Si la ejecución se interrumpe, volver a correr el script: el inicio de la sección 2 hace `DROP` de las tablas si existen. El volumen se redujo para que el demo corra rápido; con más filas la diferencia de lecturas lógicas se vuelve más marcada.
 
 ## 6. Resultados esperados
+
+Con el dataset reducido (500 ventas / 1.500 renglones), estas son las lecturas lógicas medidas en la ejecución de referencia:
+
+| Consulta | Sin índice | Con índice |
+|---|---|---|
+| Ventas de una semana por vendedor | `perf_venta`: **5** lecturas lógicas | `perf_venta`: **2** lecturas lógicas |
+| Compras de un cliente | `perf_venta`: **5** lecturas lógicas | `perf_venta`: **2** lecturas lógicas |
+| Renglones de una venta | `perf_detalle`: **9** lecturas lógicas | `perf_detalle`: **2** lecturas lógicas |
+
+Los resultados de las tres consultas son idénticos con y sin índice: el índice no cambia los datos, solo el camino de acceso. Lo que baja es el costo (lecturas lógicas y tiempo de ejecución), lo que demuestra la optimización.
+
+Como referencia, sobre el dataset original de 1,2 millones de filas (300.000 ventas / 900.000 renglones) se midieron estas lecturas lógicas:
 
 | Consulta | Sin índice | Con índice |
 |---|---|---|
