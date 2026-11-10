@@ -43,13 +43,15 @@ Técnicas aplicadas:
 
 | Objeto | `rol_vendedor` | `rol_gerente` | `rol_auditor` |
 |---|---|---|---|
-| `vw_lotes_disponibles` | SELECT | SELECT | – |
+| `vw_lotes_disponibles` | SELECT | – | – |
 | `sp_RegistrarVentaCompleta` (y tipo `tipo_detalle_venta`) | EXECUTE | EXECUTE | – |
 | `sp_ReporteVentasPorVendedor` | – | EXECUTE | – |
 | `venta`, `detalle_venta`, `pago`, `lote` | DENY todo | SELECT; DENY DELETE (`venta`, `detalle_venta`) | – |
 | `Persona`, `Cliente`, `Empleado` | DENY todo | SELECT | – |
 | `Producto` | – | SELECT y UPDATE solo de `precio` | – |
-| `auditoria_producto` | – | SELECT | SELECT |
+| `auditoria_producto` | – | – | SELECT |
+
+El gerente recibe permisos `SELECT` solo sobre las tablas enumeradas en la matriz, no sobre todo `dbo`. Así, las tablas nuevas no quedan accesibles automáticamente. El script revoca también el permiso de esquema amplio si se había aplicado en una ejecución anterior.
 
 ## 4. Caso concreto aplicado al sistema de ventas
 
@@ -60,7 +62,7 @@ En la farmacia, el **vendedor** atiende en el mostrador: necesita ver qué lotes
 1. Tener creada y cargada la base `Farmacia_Proyecto` con el DDL y el DML del proyecto.
 2. Haber ejecutado antes `etapa_v/procedimientos_funciones/scripts.sql` y `etapa_v/triggers_auditoria/scripts.sql`, porque la demo usa `sp_RegistrarVentaCompleta`, `tipo_detalle_venta`, `sp_ReporteVentasPorVendedor` y `auditoria_producto`.
 3. Abrir `scripts.sql` en SQL Server Management Studio y ejecutarlo completo, de arriba hacia abajo.
-4. Revisar los mensajes de la pestaña **Messages** y los resultados de cada `SELECT`, y compararlos con la sección 6.
+4. Revisar los mensajes de la pestaña **Messages** y los resultados de cada `SELECT`, y compararlos con la sección 6. Las pruebas denegadas imprimen el número y el mensaje del error (por ejemplo, error 229); guardá una captura donde se vean las pruebas 1 a 9, en ese orden.
 
 > La venta de prueba se registra dentro de una transacción que se deshace al final (`ROLLBACK`), por lo que la demo se puede ejecutar varias veces sin dejar ventas acumuladas.
 
@@ -70,13 +72,13 @@ En la farmacia, el **vendedor** atiende en el mostrador: necesita ver qué lotes
 |---|---|
 | 1) Vendedor consulta `vw_lotes_disponibles` | PERMITIDO |
 | 2) Vendedor consulta `Persona` | DENEGADO (error 229: permiso SELECT denegado) |
-| 3) Vendedor hace `UPDATE` sobre `lote` | DENEGADO |
-| 4) Vendedor hace `DELETE` sobre `venta` | DENEGADO |
+| 3) Vendedor hace `UPDATE` sobre `lote` | DENEGADO (error 229) |
+| 4) Vendedor hace `DELETE` sobre `venta` | DENEGADO (error 229) |
 | 5) Vendedor ejecuta `sp_RegistrarVentaCompleta` | PERMITIDO (la venta se registra y luego se deshace) |
 | 6) Gerente consulta `venta` | PERMITIDO |
-| 7) Gerente hace `DELETE` sobre `venta` | DENEGADO |
+| 7) Gerente hace `DELETE` sobre `venta` | DENEGADO (error 229) |
 | 8) Auditor consulta `auditoria_producto` | PERMITIDO |
-| 9) Auditor consulta `venta` | DENEGADO |
+| 9) Auditor consulta `venta` | DENEGADO (error 229) |
 
 Al final, `sesion_final` vuelve al usuario original (`dbo`).
 
@@ -129,6 +131,12 @@ El auditor solo puede consultar `auditoria_producto`; el acceso a `venta` queda 
 Después del último `REVERT`, `USER_NAME()` vuelve a `dbo`.
 
 ![Sesión final](evidencias/08_sesion_final.png)
+
+### 7.9 Permisos denegados
+
+Las nueve pruebas se muestran en orden. Los intentos denegados (2, 3, 4, 7 y 9) devuelven el error 229; las operaciones permitidas (1, 5, 6 y 8) también quedaron verificadas en la ejecución.
+
+![Mensajes reales de las pruebas de permisos ejecutadas en SQL Server con Docker y sqlcmd](evidencias/09_permisos_denegados.png)
 
 ## 8. Reglas de negocio cubiertas
 

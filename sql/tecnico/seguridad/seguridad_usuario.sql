@@ -77,8 +77,17 @@ DENY SELECT, INSERT, UPDATE, DELETE ON dbo.Persona        TO rol_vendedor;
 DENY SELECT, INSERT, UPDATE, DELETE ON dbo.Cliente        TO rol_vendedor;
 DENY SELECT, INSERT, UPDATE, DELETE ON dbo.Empleado       TO rol_vendedor;
 
--- Gerente: lee todo el esquema, modifica solo el precio de los productos y ejecuta reportes.
-GRANT SELECT  ON SCHEMA::dbo                     TO rol_gerente;
+-- Retira el permiso amplio de versiones anteriores y limita la lectura a las
+-- tablas incluidas en la matriz de permisos.
+REVOKE SELECT ON SCHEMA::dbo FROM rol_gerente;
+GRANT SELECT  ON dbo.venta                       TO rol_gerente;
+GRANT SELECT  ON dbo.detalle_venta               TO rol_gerente;
+GRANT SELECT  ON dbo.pago                        TO rol_gerente;
+GRANT SELECT  ON dbo.lote                        TO rol_gerente;
+GRANT SELECT  ON dbo.Persona                     TO rol_gerente;
+GRANT SELECT  ON dbo.Cliente                     TO rol_gerente;
+GRANT SELECT  ON dbo.Empleado                    TO rol_gerente;
+GRANT SELECT  ON dbo.Producto                    TO rol_gerente;
 GRANT UPDATE  ON dbo.Producto (precio)           TO rol_gerente;
 GRANT EXECUTE ON dbo.sp_ReporteVentasPorVendedor TO rol_gerente;
 GRANT EXECUTE ON dbo.sp_RegistrarVentaCompleta   TO rol_gerente;

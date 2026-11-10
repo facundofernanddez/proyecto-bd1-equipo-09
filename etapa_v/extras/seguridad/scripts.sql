@@ -119,8 +119,17 @@ DENY SELECT, INSERT, UPDATE, DELETE ON dbo.Persona        TO rol_vendedor;
 DENY SELECT, INSERT, UPDATE, DELETE ON dbo.Cliente        TO rol_vendedor;
 DENY SELECT, INSERT, UPDATE, DELETE ON dbo.Empleado       TO rol_vendedor;
 
--- Gerente: lee todo el esquema, modifica solo el precio de los productos y ejecuta reportes.
-GRANT SELECT  ON SCHEMA::dbo                     TO rol_gerente;
+-- Retira el permiso amplio de versiones anteriores y limita la lectura a las
+-- tablas incluidas en la matriz de permisos.
+REVOKE SELECT ON SCHEMA::dbo FROM rol_gerente;
+GRANT SELECT  ON dbo.venta                       TO rol_gerente;
+GRANT SELECT  ON dbo.detalle_venta               TO rol_gerente;
+GRANT SELECT  ON dbo.pago                        TO rol_gerente;
+GRANT SELECT  ON dbo.lote                        TO rol_gerente;
+GRANT SELECT  ON dbo.Persona                     TO rol_gerente;
+GRANT SELECT  ON dbo.Cliente                     TO rol_gerente;
+GRANT SELECT  ON dbo.Empleado                    TO rol_gerente;
+GRANT SELECT  ON dbo.Producto                    TO rol_gerente;
 GRANT UPDATE  ON dbo.Producto (precio)           TO rol_gerente;
 GRANT EXECUTE ON dbo.sp_ReporteVentasPorVendedor TO rol_gerente;
 GRANT EXECUTE ON dbo.sp_RegistrarVentaCompleta   TO rol_gerente;
@@ -169,7 +178,7 @@ BEGIN TRY
     PRINT '1) SELECT sobre vw_lotes_disponibles: PERMITIDO';
 END TRY
 BEGIN CATCH
-    PRINT '1) ERROR: ' + ERROR_MESSAGE();
+    PRINT '1) ERROR -> error ' + CAST(ERROR_NUMBER() AS VARCHAR(10)) + ': ' + ERROR_MESSAGE();
 END CATCH;
 
 -- 2) Denegado: datos personales
@@ -178,7 +187,7 @@ BEGIN TRY
     PRINT '2) SELECT sobre Persona: PERMITIDO (no deberia)';
 END TRY
 BEGIN CATCH
-    PRINT '2) SELECT sobre Persona: DENEGADO -> ' + ERROR_MESSAGE();
+    PRINT '2) SELECT sobre Persona: DENEGADO -> error ' + CAST(ERROR_NUMBER() AS VARCHAR(10)) + ': ' + ERROR_MESSAGE();
 END CATCH;
 
 -- 3) Denegado: modificar stock directamente (WHERE 1 = 0 para no tocar filas)
@@ -187,7 +196,7 @@ BEGIN TRY
     PRINT '3) UPDATE sobre lote: PERMITIDO (no deberia)';
 END TRY
 BEGIN CATCH
-    PRINT '3) UPDATE sobre lote: DENEGADO -> ' + ERROR_MESSAGE();
+    PRINT '3) UPDATE sobre lote: DENEGADO -> error ' + CAST(ERROR_NUMBER() AS VARCHAR(10)) + ': ' + ERROR_MESSAGE();
 END CATCH;
 
 -- 4) Denegado: borrar ventas
@@ -196,7 +205,7 @@ BEGIN TRY
     PRINT '4) DELETE sobre venta: PERMITIDO (no deberia)';
 END TRY
 BEGIN CATCH
-    PRINT '4) DELETE sobre venta: DENEGADO -> ' + ERROR_MESSAGE();
+    PRINT '4) DELETE sobre venta: DENEGADO -> error ' + CAST(ERROR_NUMBER() AS VARCHAR(10)) + ': ' + ERROR_MESSAGE();
 END CATCH;
 REVERT;
 
@@ -212,7 +221,7 @@ BEGIN TRANSACTION;
         PRINT '5) EXEC sp_RegistrarVentaCompleta: PERMITIDO (venta ' + CAST(@id_venta AS VARCHAR(10)) + ')';
     END TRY
     BEGIN CATCH
-        PRINT '5) ERROR: ' + ERROR_MESSAGE();
+        PRINT '5) ERROR -> error ' + CAST(ERROR_NUMBER() AS VARCHAR(10)) + ': ' + ERROR_MESSAGE();
     END CATCH;
     REVERT;
     SELECT 'Venta vista por el dueno antes de deshacer' AS nota, * FROM dbo.venta WHERE id_venta = @id_venta;
@@ -226,14 +235,14 @@ BEGIN TRY
     PRINT '6) SELECT sobre venta: PERMITIDO';
 END TRY
 BEGIN CATCH
-    PRINT '6) ERROR: ' + ERROR_MESSAGE();
+    PRINT '6) ERROR -> error ' + CAST(ERROR_NUMBER() AS VARCHAR(10)) + ': ' + ERROR_MESSAGE();
 END CATCH;
 BEGIN TRY
     DELETE FROM dbo.venta WHERE 1 = 0;
     PRINT '7) DELETE sobre venta: PERMITIDO (no deberia)';
 END TRY
 BEGIN CATCH
-    PRINT '7) DELETE sobre venta: DENEGADO -> ' + ERROR_MESSAGE();
+    PRINT '7) DELETE sobre venta: DENEGADO -> error ' + CAST(ERROR_NUMBER() AS VARCHAR(10)) + ': ' + ERROR_MESSAGE();
 END CATCH;
 REVERT;
 
@@ -245,14 +254,14 @@ BEGIN TRY
     PRINT '8) SELECT sobre auditoria_producto: PERMITIDO';
 END TRY
 BEGIN CATCH
-    PRINT '8) ERROR: ' + ERROR_MESSAGE();
+    PRINT '8) ERROR -> error ' + CAST(ERROR_NUMBER() AS VARCHAR(10)) + ': ' + ERROR_MESSAGE();
 END CATCH;
 BEGIN TRY
     SELECT TOP 1 * FROM dbo.venta;
     PRINT '9) SELECT sobre venta: PERMITIDO (no deberia)';
 END TRY
 BEGIN CATCH
-    PRINT '9) SELECT sobre venta: DENEGADO -> ' + ERROR_MESSAGE();
+    PRINT '9) SELECT sobre venta: DENEGADO -> error ' + CAST(ERROR_NUMBER() AS VARCHAR(10)) + ': ' + ERROR_MESSAGE();
 END CATCH;
 REVERT;
 
