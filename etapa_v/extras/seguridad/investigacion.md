@@ -136,7 +136,7 @@ Después del último `REVERT`, `USER_NAME()` vuelve a `dbo`.
 
 Las nueve pruebas se muestran en orden. Los intentos denegados (2, 3, 4, 7 y 9) devuelven el error 229; las operaciones permitidas (1, 5, 6 y 8) también quedaron verificadas en la ejecución.
 
-![Mensajes reales de las pruebas de permisos ejecutadas en SQL Server con Docker y sqlcmd](evidencias/09_permisos_denegados.png)
+![Mensajes reales de las pruebas de permisos ejecutadas en SQL Server Management](evidencias/09_permisos_denegados.png)
 
 ## 8. Reglas de negocio cubiertas
 

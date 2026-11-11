@@ -151,6 +151,8 @@ BEGIN TRY
     WHERE id_producto = @id_producto
     ORDER BY id_auditoria;
 
+    --     COMMIT TRANSACTION;
+    --     PRINT 'Demostracion finalizada: los cambios y sus registros de auditoria fueron confirmados.';
     ROLLBACK TRANSACTION;
     PRINT 'Demostracion finalizada: los cambios y sus registros de auditoria fueron revertidos.';
 END TRY
